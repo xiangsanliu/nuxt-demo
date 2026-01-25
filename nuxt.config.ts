@@ -9,5 +9,13 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true }
+  devtools: { enabled: true }, 
+  ui: {
+    fonts: false,
+  },
+  vite: {
+    server: {
+      allowedHosts: ['.cnb.run']
+    }
+  }
 })
