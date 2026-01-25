@@ -1,41 +1,60 @@
 <script setup lang="ts">
-import type { AssetInfo } from '~~/types/asset-info'
+const { holdings, refreshRates } = useAssets()
+const isModalOpen = ref(false)
 
-const counter = ref(0)
-const symbol = ref('AAPL')
-
-const handleClick = () => {
-  counter.value++
-}
-
-const handleRefresh = () => {
-  refresh()
-}
-
-// 获取 Hello World 数据
-const { data: helloData } = await useFetch<{ message: string }>('/api/hello')
-
-// 获取股价数据，使用 watch: [symbol] 响应搜索
-const { data: stock, pending, error, refresh } = await useFetch<AssetInfo>('/api/stock', {
-  query: { symbol },
-  watch: false
+onMounted(() => {
+  refreshRates()
 })
 
+const totalValue = computed(() => {
+  return holdings.value.reduce((acc, h) => acc + (h.valueUSD || 0), 0)
+})
+
+const totalProfit = computed(() => {
+  return holdings.value.reduce((acc, h) => acc + (h.profitUSD || 0), 0)
+})
+
+const totalProfitPercent = computed(() => {
+  const totalCostUSD = holdings.value.reduce((acc, h) => acc + (h.totalCostUSD || 0), 0)
+  return totalCostUSD > 0 ? (totalProfit.value / totalCostUSD) * 100 : 0
+})
 </script>
 
 <template>
-  <UApp>
-    <div style="border: 1px solid #ccc; padding: 20px; margin: 20px 0;">
-      <h2>Stock Price Tracker</h2>
-      <UInput v-model="symbol" placeholder="Enter symbol (e.g. TSLA)" />
-      <UButton @click="handleRefresh" :disabled="pending">Refresh</UButton>
-
-      <div v-if="pending">Loading...</div>
-      <div v-else-if="error" style="color: red;">Error: {{ error.statusMessage }}</div>
-      <div v-else-if="stock">
-        <p><strong>Name:</strong> {{ stock.name }} ({{ stock.symbol }})</p>
-        <p><strong>Price:</strong> {{ stock.price }} {{ stock.currency }}</p>
+  <UContainer class="py-10">
+    <div class="flex justify-between items-start mb-8">
+      <div>
+        <h1 class="text-3xl font-bold mb-2">我的资产</h1>
+        <div class="flex gap-4 text-sm">
+          <div>
+            <span class="text-gray-500">总市值:</span>
+            <span class="ml-1 font-bold">≈ {{ totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 }) }} USD</span>
+          </div>
+          <div>
+            <span class="text-gray-500">当日盈亏:</span>
+            <span :class="['ml-1 font-bold', totalProfit >= 0 ? 'text-green-500' : 'text-red-500']">
+              {{ totalProfit >= 0 ? '+' : '' }}{{ totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
+              ({{ totalProfitPercent.toFixed(2) }}%)
+            </span>
+          </div>
+        </div>
       </div>
+      
+      <UButton icon="i-heroicons-plus" @click="isModalOpen = true">
+        新增操作
+      </UButton>
     </div>
-  </UApp>
+
+    <UCard>
+      <AssetTable />
+    </UCard>
+
+    <UModal v-model:open="isModalOpen" title="资产操作">
+      <template #content>
+        <div class="p-4">
+          <AssetForm @success="isModalOpen = false" />
+        </div>
+      </template>
+    </UModal>
+  </UContainer>
 </template>
