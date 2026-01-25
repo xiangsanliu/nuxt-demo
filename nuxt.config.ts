@@ -9,7 +9,13 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true }, 
+  nitro: {
+    preset: "cloudflare_module",
+    cloudflare: {
+      deployConfig: true,
+      nodeCompat: true
+    }
+  }, devtools: { enabled: true },
   ui: {
     fonts: false,
   },

@@ -1,7 +1,3 @@
-import YahooFinance from 'yahoo-finance2'
-
-const yahooFinance = new YahooFinance();
-
 export default defineCachedEventHandler(async (event) => {
   const query = getQuery(event)
   const symbol = query.symbol as string
@@ -14,8 +10,33 @@ export default defineCachedEventHandler(async (event) => {
   }
 
   try {
-    const quote = await yahooFinance.quote(symbol)
-    console.log('fetch stock price:', symbol)
+    // 模拟真实的浏览器请求头，这在 Cloudflare 环境下非常重要
+    const response = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    })
+    
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Yahoo API Error Response:', errorText)
+      throw new Error(`Yahoo API status: ${response.status}`)
+    }
+
+    const data: any = await response.json()
+    const quote = data.quoteResponse?.result?.[0]
+    
+    if (!quote) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: `Stock symbol "${symbol}" not found or unauthorized`
+      })
+    }
+
     return {
       symbol: quote.symbol,
       price: quote.regularMarketPrice,
@@ -23,10 +44,10 @@ export default defineCachedEventHandler(async (event) => {
       name: quote.shortName || quote.longName
     }
   } catch (error: any) {
-    console.error('Failed to fetch stock price:', error)
+    console.error('Fetch error:', error)
     throw createError({
       statusCode: 500,
-      statusMessage: `Failed to fetch stock price: ${error.message}`
+      statusMessage: `Failed to fetch stock data: ${error.message}`
     })
   }
 }, {
@@ -37,4 +58,3 @@ export default defineCachedEventHandler(async (event) => {
     return query.symbol as string
   }
 })
-

@@ -15,6 +15,7 @@
     "tailwindcss": "^4.1.18",
     "vue": "^3.5.27",
     "vue-router": "^4.6.4",
+    "wrangler": "^4.60.0",
     "yahoo-finance2": "^3.13.0"
   },
   "devDependencies": {
