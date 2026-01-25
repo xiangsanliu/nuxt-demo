@@ -2,11 +2,10 @@ import YahooFinance from 'yahoo-finance2'
 
 const yahooFinance = new YahooFinance();
 
-export default defineEventHandler(async (event) => {
+export default defineCachedEventHandler(async (event) => {
   const query = getQuery(event)
-  console.log(query)
   const symbol = query.symbol as string
-  console.log(symbol)
+  
   if (!symbol) {
     throw createError({
       statusCode: 400,
@@ -16,6 +15,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     const quote = await yahooFinance.quote(symbol)
+    console.log('fetch stock price:', symbol)
     return {
       symbol: quote.symbol,
       price: quote.regularMarketPrice,
@@ -28,6 +28,13 @@ export default defineEventHandler(async (event) => {
       statusCode: 500,
       statusMessage: `Failed to fetch stock price: ${error.message}`
     })
+  }
+}, {
+  maxAge: 60 * 10, // 10 minutes
+  name: 'getStockPrice',
+  getKey: (event) => {
+    const query = getQuery(event)
+    return query.symbol as string
   }
 })
 
