@@ -5,11 +5,12 @@ $:
         cpus: 3
       docker:
         # 指定开发环境镜像，可以是任意可访问的镜像
-        image: guergeiro/pnpm:20-10-alpine
+        image: guergeiro/pnpm:22-10-alpine
         volumes:
           # 使用缓存，同时更新
           - /root/.npm:copy-on-write
           - /root/.local/share/pnpm/store/v10:copy-on-write
+          - /root/.pnpm:copy-on-write
       services:
         - vscode
         - docker
@@ -18,4 +19,4 @@ $:
         - name: config
           script:
             - pnpm config set registry https://registry.npmmirror.com
-            
+            - pnpm config set store-dir /root/.pnpm
