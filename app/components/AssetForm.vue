@@ -39,20 +39,27 @@ const fetchSymbolInfo = async () => {
   }
 }
 
-const onSubmit = () => {
-  addTransaction({
-    symbol: form.symbol.toUpperCase(),
-    type: form.type,
-    quantity: form.quantity,
-    price: form.price,
-    date: form.date,
-    currency: form.currency
-  })
-  emit('success')
-  // Reset form
-  form.symbol = ''
-  form.quantity = 1
-  form.price = 0
+const onSubmit = async () => {
+  loading.value = true
+  try {
+    await addTransaction({
+      symbol: form.symbol.toUpperCase(),
+      type: form.type,
+      amount: form.quantity, // 明确传递 amount 字段
+      price: form.price,
+      date: form.date,
+      currency: form.currency
+    })
+    emit('success')
+    // Reset form
+    form.symbol = ''
+    form.quantity = 1
+    form.price = 0
+  } catch (err) {
+    console.error('Failed to add transaction', err)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 

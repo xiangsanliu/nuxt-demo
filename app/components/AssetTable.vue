@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { holdings, refreshPrices } = useAssets()
+const { holdings, refreshPrices, displayCurrency } = useAssets()
 
 const columns = [
   { accessorKey: 'name', header: '名称' },
@@ -7,9 +7,8 @@ const columns = [
   { accessorKey: 'quantity', header: '持有数量' },
   { accessorKey: 'averageCost', header: '平均成本' },
   { accessorKey: 'currentPrice', header: '当前价格' },
-  { accessorKey: 'value', header: '市值' },
-  { accessorKey: 'profit', header: '盈亏' },
-  { accessorKey: 'currency', header: '币种' }
+  { accessorKey: 'displayValue', header: '市值' },
+  { accessorKey: 'displayProfit', header: '盈亏' }
 ]
 
 const formatNumber = (num: number, decimals = 2) => {
@@ -24,7 +23,7 @@ onMounted(() => {
 <template>
   <div class="space-y-4">
     <div class="flex justify-between items-center">
-      <h3 class="text-lg font-bold">资产概览</h3>
+      <h3 class="text-lg font-bold">资产概览 ({{ displayCurrency }})</h3>
       <UButton icon="i-heroicons-arrow-path" color="neutral" variant="ghost" @click="refreshPrices"> 刷新价格 </UButton>
     </div>
 
@@ -40,20 +39,23 @@ onMounted(() => {
       </template>
 
       <template #averageCost-cell="{ row }">
-        {{ formatNumber(row.original.averageCost) }}
+        {{ formatNumber(row.original.averageCost) }} <span class="text-xs text-gray-400">{{ row.original.currency }}</span>
       </template>
 
       <template #currentPrice-cell="{ row }">
-        {{ formatNumber(row.original.currentPrice) }}
+        {{ formatNumber(row.original.currentPrice) }} <span class="text-xs text-gray-400">{{ row.original.currency }}</span>
       </template>
 
-      <template #value-cell="{ row }">
-        {{ formatNumber(row.original.value) }}
+      <template #displayValue-cell="{ row }">
+        <div class="font-bold">
+          {{ formatNumber(row.original.displayValue) }}
+          <span class="text-xs font-normal text-gray-400 ml-1">{{ displayCurrency }}</span>
+        </div>
       </template>
 
-      <template #profit-cell="{ row }">
-        <span :class="row.original.profit >= 0 ? 'text-green-500' : 'text-red-500'">
-          {{ row.original.profit >= 0 ? '+' : '' }}{{ formatNumber(row.original.profit) }}
+      <template #displayProfit-cell="{ row }">
+        <span :class="row.original.profitUSD >= 0 ? 'text-green-500' : 'text-red-500'">
+          {{ row.original.profitUSD >= 0 ? '+' : '' }}{{ formatNumber(row.original.displayProfit) }}
           ({{ formatNumber(row.original.profitPercent) }}%)
         </span>
       </template>

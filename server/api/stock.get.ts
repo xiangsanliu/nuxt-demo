@@ -27,6 +27,7 @@ export default defineCachedEventHandler(async (event) => {
     }
 
     return {
+      name: result.shortName,
       symbol: result.symbol,
       price: result.regularMarketPrice,
       change: result.regularMarketChange,

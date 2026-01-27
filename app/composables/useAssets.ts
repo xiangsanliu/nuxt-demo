@@ -1,75 +1,90 @@
-import type { Transaction, Holding, TransactionType, AssetInfo } from '~/types/asset-info'
+import type { AssetInfo } from '~/types/asset-info'
 
 export const useAssets = () => {
-  const transactions = useState<Transaction[]>('transactions', () => [])
+  // 数据库计算好的原始持仓数据
+  const rawHoldings = useState<any[]>('raw_holdings', () => [])
+  const currentPrices = useState<Record<string, AssetInfo>>('currentPrices', () => ({}))
+  
+  // 当前显示的币种
+  const displayCurrency = useState<string>('display_currency', () => 'USD')
 
-  // Load transactions from localStorage on client-side
-  onMounted(() => {
-    const saved = localStorage.getItem('transactions')
-    if (saved) {
-      transactions.value = JSON.parse(saved)
-    }
-  })
+  // 汇率表：存储 1 USD 对应多少目标货币 (例如: rates['HKD'] = 7.8)
+  const rates = useState<Record<string, number>>('rates', () => ({
+    'USD': 1
+  }))
 
-  // Watch and save to localStorage
-  watch(transactions, (newVal) => {
-    localStorage.setItem('transactions', JSON.stringify(newVal))
-  }, { deep: true })
-
-  const addTransaction = (t: Omit<Transaction, 'id'>) => {
-    const transaction: Transaction = {
-      ...t,
-      id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 11)
-    }
-    transactions.value.push(transaction)
+  // 从后端加载聚合后的资产
+  const refreshHoldings = async () => {
+    const data = await $fetch<any[]>('/api/assets')
+    rawHoldings.value = data
+    await Promise.all([
+      refreshPrices(),
+      refreshRates()
+    ])
   }
 
-  const holdings = computed(() => {
-    const map = new Map<string, { quantity: number; totalCost: number; symbol: string; currency: string }>()
-    
-    for (const t of transactions.value) {
-      if (!map.has(t.symbol)) {
-        map.set(t.symbol, { quantity: 0, totalCost: 0, symbol: t.symbol, currency: t.currency })
-      }
-      const h = map.get(t.symbol)!
-      if (t.type === 'buy' || t.type === 'register') {
-        h.quantity += t.quantity
-        h.totalCost += t.quantity * t.price
-      } else if (t.type === 'sell') {
-        const avgCost = h.quantity > 0 ? h.totalCost / h.quantity : 0
-        h.quantity -= t.quantity
-        h.totalCost -= t.quantity * avgCost
+  // 刷新所有相关的汇率
+  const refreshRates = async () => {
+    // 收集所有需要转换的币种：原始持仓币种 + 当前显示币种
+    const currencies = new Set<string>()
+    rawHoldings.value.forEach(h => { if (h.currency && h.currency !== 'USD') currencies.add(h.currency) })
+    if (displayCurrency.value !== 'USD') currencies.add(displayCurrency.value)
+
+    if (currencies.size === 0) return
+
+    // 雅虎财经货币符号通常为 "USD[CURR]=X"，表示 1 USD 等于多少目标货币
+    for (const currency of currencies) {
+      try {
+        const symbol = `USD${currency}=X`
+        const data = await $fetch<AssetInfo>('/api/stock', { query: { symbol } })
+        if (data && data.price) {
+          rates.value[currency] = data.price
+        }
+      } catch (e) {
+        // 如果 USDXXX=X 失败，尝试 XXX=X (部分币种如 HKD=X 也常用)
+        try {
+          const data = await $fetch<AssetInfo>('/api/stock', { query: { symbol: `${currency}=X` } })
+          if (data && data.price) {
+            rates.value[currency] = data.price
+          }
+        } catch (err) {
+          console.error(`Failed to fetch rate for ${currency}`, err)
+        }
       }
     }
+  }
 
-    return Array.from(map.values())
-      .filter(h => h.quantity > 0)
-      .map(h => ({
-        symbol: h.symbol,
-        name: h.symbol,
-        quantity: h.quantity,
-        averageCost: h.totalCost / h.quantity,
-        totalCost: h.totalCost,
-        currentPrice: 0,
-        currency: h.currency,
-        value: 0,
-        profit: 0,
-        profitPercent: 0,
-        valueUSD: 0,
-        profitUSD: 0,
-        totalCostUSD: 0
-      }))
+  // 监听显示币种变化，自动刷新汇率
+  watch(displayCurrency, () => {
+    refreshRates()
   })
 
-  const currentPrices = useState<Record<string, AssetInfo>>('currentPrices', () => ({}))
+  // 获取特定币种对 USD 的汇率 (1 XXX = ? USD)
+  const getRateToUSD = (currency: string) => {
+    if (!currency || currency === 'USD') return 1
+    const rate = rates.value[currency]
+    return rate ? 1 / rate : 1 // 如果 1 USD = 7.8 HKD, 则 1 HKD = 1/7.8 USD
+  }
+
+  // 获取 USD 到特定币种的汇率 (1 USD = ? XXX)
+  const getRateFromUSD = (toCurrency: string) => {
+    if (!toCurrency || toCurrency === 'USD') return 1
+    return rates.value[toCurrency] || 1
+  }
+
+  // 提交交易记录
+  const addTransaction = async (t: { symbol: string, type: string, amount: number, price: number, currency: string, date?: string }) => {
+    await $fetch('/api/transactions', {
+      method: 'POST',
+      body: t
+    })
+    await refreshHoldings()
+  }
 
   const refreshPrices = async () => {
-    const symbols = holdings.value.map(h => h.symbol)
+    const symbols = rawHoldings.value.map(h => h.symbol)
     if (symbols.length === 0) return
 
-    // For simplicity, we fetch one by one or create a bulk API
-    // Let's just fetch one by one for now if there aren't many, 
-    // but a bulk API would be better.
     for (const symbol of symbols) {
       try {
         const data = await $fetch<AssetInfo>('/api/stock', { query: { symbol } })
@@ -82,48 +97,45 @@ export const useAssets = () => {
     }
   }
 
-  const rates = useState<Record<string, number>>('rates', () => ({
-    'USD': 1,
-    'HKD': 0.128, // Default approx
-    'CNY': 0.138  // Default approx
-  }))
+  // 将原始持仓与实时价格、汇率结合进行计算
+  const holdings = computed(() => {
+    const targetCurrency = displayCurrency.value
 
-  const refreshRates = async () => {
-    const pairs = ['HKDUSD=X', 'CNYUSD=X']
-    for (const pair of pairs) {
-      try {
-        const data = await $fetch<AssetInfo>('/api/stock', { query: { symbol: pair } })
-        if (data) {
-          const from = pair.substring(0, 3)
-          rates.value[from] = data.price
-        }
-      } catch (e) {
-        console.error(`Failed to fetch rate for ${pair}`, e)
-      }
-    }
-  }
-
-  const holdingsWithPrices = computed(() => {
-    return holdings.value.map(h => {
+    return rawHoldings.value.map(h => {
       const info = currentPrices.value[h.symbol]
-      if (!info) return h
-
-      const currentPrice = info.price
-      const value = h.quantity * currentPrice
-      const profit = value - h.totalCost
-      const profitPercent = h.totalCost > 0 ? (profit / h.totalCost) * 100 : 0
+      const totalCost = h.amount * h.avgPrice
+      const originalCurrency = h.currency || 'USD'
       
-      const rate = rates.value[h.currency] || 1
-      const valueUSD = value * rate
-      const profitUSD = profit * rate
-      const totalCostUSD = h.totalCost * rate
+      const baseData = {
+        symbol: h.symbol,
+        name: info?.name || h.symbol,
+        quantity: h.amount,
+        averageCost: h.avgPrice,
+        totalCost: totalCost,
+        currency: originalCurrency,
+        currentPrice: info?.price || 0,
+      }
+
+      // 1. 先换算为基准货币 USD
+      const rateToUSD = getRateToUSD(originalCurrency)
+      const totalCostUSD = totalCost * rateToUSD
+      const currentPriceUSD = baseData.currentPrice * rateToUSD
+      const valueUSD = h.amount * currentPriceUSD
+      const profitUSD = valueUSD - totalCostUSD
+      const profitPercent = totalCostUSD > 0 ? (profitUSD / totalCostUSD) * 100 : 0
+
+      // 2. 再由 USD 换算为当前显示的币种
+      const rateFromUSD = getRateFromUSD(targetCurrency)
+      const displayValue = valueUSD * rateFromUSD
+      const displayProfit = profitUSD * rateFromUSD
+      const displayTotalCost = totalCostUSD * rateFromUSD
 
       return {
-        ...h,
-        name: info.name,
-        currentPrice,
-        value,
-        profit,
+        ...baseData,
+        displayValue,
+        displayProfit,
+        displayTotalCost,
+        displayCurrency: targetCurrency,
         profitPercent,
         valueUSD,
         profitUSD,
@@ -133,9 +145,10 @@ export const useAssets = () => {
   })
 
   return {
-    transactions,
-    holdings: holdingsWithPrices,
+    holdings,
+    displayCurrency,
     addTransaction,
+    refreshHoldings,
     refreshPrices,
     refreshRates,
     rates

@@ -1,22 +1,29 @@
 <script setup lang="ts">
-const { holdings, refreshRates } = useAssets()
+const { holdings, refreshRates, refreshHoldings, displayCurrency, rates } = useAssets()
 const isModalOpen = ref(false)
 
+const currencyOptions = [
+  { label: 'USD (美元)', value: 'USD' },
+  { label: 'HKD (港币)', value: 'HKD' },
+  { label: 'CNY (人民币)', value: 'CNY' }
+]
+
 onMounted(() => {
+  refreshHoldings()
   refreshRates()
 })
 
 const totalValue = computed(() => {
-  return holdings.value.reduce((acc, h) => acc + (h.valueUSD || 0), 0)
+  return holdings.value.reduce((acc, h) => acc + (h.displayValue || 0), 0)
 })
 
 const totalProfit = computed(() => {
-  return holdings.value.reduce((acc, h) => acc + (h.profitUSD || 0), 0)
+  return holdings.value.reduce((acc, h) => acc + (h.displayProfit || 0), 0)
 })
 
 const totalProfitPercent = computed(() => {
-  const totalCostUSD = holdings.value.reduce((acc, h) => acc + (h.totalCostUSD || 0), 0)
-  return totalCostUSD > 0 ? (totalProfit.value / totalCostUSD) * 100 : 0
+  const totalCost = holdings.value.reduce((acc, h) => acc + (h.displayTotalCost || 0), 0)
+  return totalCost > 0 ? (totalProfit.value / totalCost) * 100 : 0
 })
 </script>
 
@@ -24,14 +31,17 @@ const totalProfitPercent = computed(() => {
   <UContainer class="py-10">
     <div class="flex justify-between items-start mb-8">
       <div>
-        <h1 class="text-3xl font-bold mb-2">我的资产</h1>
+        <div class="flex items-center gap-4 mb-2">
+          <h1 class="text-3xl font-bold">我的资产</h1>
+          <USelect v-model="displayCurrency" :items="currencyOptions" class="w-40" />
+        </div>
         <div class="flex gap-4 text-sm">
           <div>
             <span class="text-gray-500">总市值:</span>
-            <span class="ml-1 font-bold">≈ {{ totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 }) }} USD</span>
+            <span class="ml-1 font-bold">≈ {{ totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 }) }} {{ displayCurrency }}</span>
           </div>
           <div>
-            <span class="text-gray-500">当日盈亏:</span>
+            <span class="text-gray-500">总盈亏:</span>
             <span :class="['ml-1 font-bold', totalProfit >= 0 ? 'text-green-500' : 'text-red-500']">
               {{ totalProfit >= 0 ? '+' : '' }}{{ totalProfit.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
               ({{ totalProfitPercent.toFixed(2) }}%)

@@ -6,6 +6,8 @@
 .cache
 dist
 
+.wrangler
+
 # Node dependencies
 node_modules
 .pnpm-store
