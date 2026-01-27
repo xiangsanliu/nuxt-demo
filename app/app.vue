@@ -9,6 +9,7 @@ const { user, logout } = useAuth()
         <NuxtLink to="/" class="font-bold">资产管理系统</NuxtLink>
         <NuxtLink to="/" class="text-sm hover:text-primary">我的资产</NuxtLink>
         <NuxtLink to="/transactions" class="text-sm hover:text-primary">操作记录</NuxtLink>
+        <NuxtLink to="/settings" class="text-sm hover:text-primary">设置</NuxtLink>
       </div>
       <div class="flex items-center gap-4">
         <span class="text-sm text-gray-500">{{ user.email }}</span>
