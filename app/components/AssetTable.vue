@@ -24,7 +24,7 @@ onMounted(() => {
   <div class="space-y-4">
     <div class="flex justify-between items-center">
       <h3 class="text-lg font-bold">资产概览 ({{ displayCurrency }})</h3>
-      <UButton icon="i-heroicons-arrow-path" color="neutral" variant="ghost" @click="refreshPrices"> 刷新价格 </UButton>
+      <UButton icon="i-heroicons-arrow-path" color="neutral" variant="ghost" @click="refreshPrices(true)"> 刷新价格 </UButton>
     </div>
 
     <UTable :data="holdings" :columns="columns">

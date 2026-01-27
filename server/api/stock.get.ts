@@ -48,6 +48,11 @@ export default defineCachedEventHandler(async (event) => {
   name: 'getStockPrice',
   getKey: (event) => {
     const query = getQuery(event)
-    return query.symbol as string
+    const symbol = query.symbol as string
+    // 如果请求中带有 refresh 参数，则将 refresh 的值（时间戳）加入 Key，从而绕过旧缓存
+    if (query.refresh) {
+      return `${symbol}-refresh-${query.refresh}`
+    }
+    return symbol
   }
 })

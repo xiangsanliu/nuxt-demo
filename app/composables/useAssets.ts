@@ -103,13 +103,16 @@ export const useAssets = () => {
     await refreshHoldings()
   }
 
-  const refreshPrices = async () => {
+  const refreshPrices = async (force = false) => {
     const symbols = rawHoldings.value.map(h => h.symbol)
     if (symbols.length === 0) return
 
     for (const symbol of symbols) {
       try {
-        const data = await $fetch<AssetInfo>('/api/stock', { query: { symbol } })
+        const query: any = { symbol }
+        if (force) query.refresh = Date.now() // 增加随机参数
+
+        const data = await $fetch<AssetInfo>('/api/stock', { query })
         if (data) {
           currentPrices.value[symbol] = data
         }
