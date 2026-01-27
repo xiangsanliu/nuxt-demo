@@ -8,10 +8,10 @@ export interface AssetInfo {
 export type TransactionType = 'register' | 'buy' | 'sell'
 
 export interface Transaction {
-  id: string
+  id: number
   symbol: string
   type: TransactionType
-  quantity: number
+  amount: number
   price: number
   date: string
   currency: string

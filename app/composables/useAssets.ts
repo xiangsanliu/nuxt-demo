@@ -1,9 +1,10 @@
-import type { AssetInfo } from '~/types/asset-info'
+import type { AssetInfo, Transaction } from '~/types/asset-info'
 
 export const useAssets = () => {
   // 数据库计算好的原始持仓数据
   const rawHoldings = useState<any[]>('raw_holdings', () => [])
   const currentPrices = useState<Record<string, AssetInfo>>('currentPrices', () => ({}))
+  const transactions = useState<Transaction[]>('transactions', () => [])
   
   // 当前显示的币种
   const displayCurrency = useState<string>('display_currency', () => 'USD')
@@ -79,6 +80,27 @@ export const useAssets = () => {
       body: t
     })
     await refreshHoldings()
+    await refreshTransactions()
+  }
+
+  const refreshTransactions = async () => {
+    const data = await $fetch<Transaction[]>('/api/transactions')
+    transactions.value = data
+  }
+
+  const deleteTransaction = async (id: number) => {
+    await $fetch(`/api/transactions/${id}`, { method: 'DELETE' })
+    await refreshTransactions()
+    await refreshHoldings()
+  }
+
+  const updateTransaction = async (id: number, t: Partial<Transaction>) => {
+    await $fetch(`/api/transactions/${id}`, {
+      method: 'PATCH',
+      body: t
+    })
+    await refreshTransactions()
+    await refreshHoldings()
   }
 
   const refreshPrices = async () => {
@@ -146,11 +168,15 @@ export const useAssets = () => {
 
   return {
     holdings,
+    transactions,
     displayCurrency,
     addTransaction,
     refreshHoldings,
     refreshPrices,
     refreshRates,
+    refreshTransactions,
+    deleteTransaction,
+    updateTransaction,
     rates
   }
 }

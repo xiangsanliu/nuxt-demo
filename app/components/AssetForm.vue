@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import type { TransactionType } from '~/types/asset-info'
 
+const props = defineProps<{
+  transaction?: any
+}>()
+
 const emit = defineEmits(['success'])
-const { addTransaction } = useAssets()
+const { addTransaction, updateTransaction } = useAssets()
 
 const form = reactive({
-  symbol: '',
-  type: 'buy' as TransactionType,
-  quantity: 1,
-  price: 0,
-  date: new Date().toISOString().split('T')[0],
-  currency: 'USD'
+  symbol: props.transaction?.symbol || '',
+  type: (props.transaction?.type?.toLowerCase() || 'buy') as TransactionType,
+  quantity: props.transaction?.amount || 1,
+  price: props.transaction?.price || 0,
+  date: props.transaction?.date ? new Date(props.transaction.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+  currency: props.transaction?.currency || 'USD'
 })
 
 const loading = ref(false)
@@ -42,21 +46,30 @@ const fetchSymbolInfo = async () => {
 const onSubmit = async () => {
   loading.value = true
   try {
-    await addTransaction({
+    const payload = {
       symbol: form.symbol.toUpperCase(),
       type: form.type,
-      amount: form.quantity, // 明确传递 amount 字段
-      price: form.price,
+      amount: Number(form.quantity),
+      price: Number(form.price),
       date: form.date,
       currency: form.currency
-    })
+    }
+
+    if (props.transaction?.id) {
+      await updateTransaction(props.transaction.id, payload)
+    } else {
+      await addTransaction(payload)
+    }
+
     emit('success')
-    // Reset form
-    form.symbol = ''
-    form.quantity = 1
-    form.price = 0
+    if (!props.transaction) {
+      // Reset form if it's a new transaction
+      form.symbol = ''
+      form.quantity = 1
+      form.price = 0
+    }
   } catch (err) {
-    console.error('Failed to add transaction', err)
+    console.error('Failed to save transaction', err)
   } finally {
     loading.value = false
   }
