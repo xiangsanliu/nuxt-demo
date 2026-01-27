@@ -26,8 +26,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "nuxt-db",
-      "database_id": "local" 
+      "database_name": "asset-tracker-db",
+      "database_id": "1b52f36e-4166-4342-aeab-cc909b322187" 
     }
   ]
   // "ai": {
