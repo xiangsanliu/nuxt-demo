@@ -1,7 +1,12 @@
+
+import YahooFinance from 'yahoo-finance2';
+
+const yahooFinance = new YahooFinance();
+
 export default defineCachedEventHandler(async (event) => {
   const query = getQuery(event)
   const symbol = query.symbol as string
-  
+
   if (!symbol) {
     throw createError({
       statusCode: 400,
@@ -11,26 +16,10 @@ export default defineCachedEventHandler(async (event) => {
 
   try {
     // 模拟真实的浏览器请求头，这在 Cloudflare 环境下非常重要
-    const response = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbol)}`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
-    })
-    
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Yahoo API Error Response:', errorText)
-      throw new Error(`Yahoo API status: ${response.status}`)
-    }
 
-    const data: any = await response.json()
-    const quote = data.quoteResponse?.result?.[0]
-    
-    if (!quote) {
+    const result = await yahooFinance.quote(symbol);
+
+    if (!result) {
       throw createError({
         statusCode: 404,
         statusMessage: `Stock symbol "${symbol}" not found or unauthorized`
@@ -38,10 +27,13 @@ export default defineCachedEventHandler(async (event) => {
     }
 
     return {
-      symbol: quote.symbol,
-      price: quote.regularMarketPrice,
-      currency: quote.currency,
-      name: quote.shortName || quote.longName
+      symbol: result.symbol,
+      price: result.regularMarketPrice,
+      change: result.regularMarketChange,
+      changePercent: result.regularMarketChangePercent,
+      currency: result.currency,
+      marketState: result.marketState,
+      timestamp: new Date().toISOString()
     }
   } catch (error: any) {
     console.error('Fetch error:', error)
