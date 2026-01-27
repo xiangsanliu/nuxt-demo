@@ -12,8 +12,8 @@ export default defineEventHandler(async (event) => {
     SELECT 
       symbol,
       currency,
-      CAST(SUM(CASE WHEN type = 'BUY' THEN amount ELSE -amount END) AS REAL) as net_amount,
-      CAST(SUM(CASE WHEN type = 'BUY' THEN amount * price ELSE -(amount * price) END) AS REAL) as net_cost
+      CAST(SUM(CASE WHEN UPPER(type) IN ('BUY', 'REGISTER') THEN amount ELSE -amount END) AS REAL) as net_amount,
+      CAST(SUM(CASE WHEN UPPER(type) IN ('BUY', 'REGISTER') THEN amount * price ELSE -(amount * price) END) AS REAL) as net_cost
     FROM transactions
     WHERE user_id = ?
     GROUP BY symbol, currency

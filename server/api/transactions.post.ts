@@ -10,8 +10,6 @@ export default defineEventHandler(async (event) => {
   const finalCurrency = currency || 'USD';
   const finalDate = date || new Date().toISOString();
   let finalType = type?.toUpperCase();
-  
-  if (finalType === 'REGISTER') finalType = 'BUY';
 
   if (!symbol || !finalType || !finalAmount || !price) {
     throw createError({ statusCode: 400, statusMessage: 'Missing fields' });

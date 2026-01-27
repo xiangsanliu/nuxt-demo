@@ -7,6 +7,8 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const { symbol, type, amount, price, currency, date } = body;
   
+  const finalType = type?.toUpperCase();
+  
   const db = event.context.cloudflare.env.DB;
 
   // Verify ownership
@@ -21,7 +23,7 @@ export default defineEventHandler(async (event) => {
   await db.prepare(
     'UPDATE transactions SET symbol = ?, type = ?, amount = ?, price = ?, currency = ?, date = ? WHERE id = ?'
   )
-  .bind(symbol.toUpperCase(), type.toUpperCase(), amount, price, currency, date, id)
+  .bind(symbol.toUpperCase(), finalType, amount, price, currency, date, id)
   .run();
 
   return { success: true };
