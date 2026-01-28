@@ -22,16 +22,10 @@ export default defineEventHandler(async (event) => {
   }
 
   // Set a simple session cookie
-  // 在 Cloudflare Workers 环境下，event.context.cloudflare 存在
-  const isCloudflare = !!event.context.cloudflare;
-  // 综合判断：协议是 HTTPS，或者在 Cloudflare 环境，都启用 Secure。
-  // 移除 process.env.NODE_ENV 避免 Cloudflare Workers 运行时报错 (因为没有 Node 环境)
-  const isSecure = getRequestProtocol(event) === 'https' || isCloudflare;
-  
   setCookie(event, 'auth_session', JSON.stringify({ id: user.id, email: user.email }), {
     httpOnly: true,
-    secure: isSecure,
-    sameSite: 'lax', // 显式设置 Lax 以兼容 Safari
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax', // Safari 需要明确设置 sameSite 属性
     maxAge: 60 * 60 * 24 * 7, // 1 week
     path: '/',
   });

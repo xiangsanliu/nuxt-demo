@@ -11,23 +11,22 @@ const password = ref('')
 const loading = ref(false)
 const error = ref('')
 
-  async function onSubmit() {
-    loading.value = true
-    error.value = ''
-    try {
-      await $fetch('/api/auth/login', {
-        method: 'POST',
-        body: { email: email.value, password: password.value },
-        credentials: 'include' // 确保登录请求也能正确处理 Cookie
-      })
-      await fetchUser()
-      navigateTo('/')
-    } catch (err: any) {
-      error.value = err.statusMessage || 'Login failed'
-    } finally {
-      loading.value = false
-    }
+async function onSubmit() {
+  loading.value = true
+  error.value = ''
+  try {
+    await $fetch('/api/auth/login', {
+      method: 'POST',
+      body: { email: email.value, password: password.value }
+    })
+    await fetchUser()
+    navigateTo('/')
+  } catch (err: any) {
+    error.value = err.statusMessage || 'Login failed'
+  } finally {
+    loading.value = false
   }
+}
 </script>
 
 <template>
