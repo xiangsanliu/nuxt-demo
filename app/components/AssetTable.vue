@@ -3,8 +3,8 @@ const { holdings, refreshPrices, displayCurrency, isPriceLoading } = useAssets()
 const { t } = useI18n()
 
 const columns = [
-  { accessorKey: 'name', header: t('assets.table.name') },
-  { accessorKey: 'symbol', header: t('assets.table.symbol'), class: 'hidden sm:table-cell' },
+  { accessorKey: 'symbol', header: t('assets.table.symbol') },
+  { accessorKey: 'name', header: t('assets.table.name'), class: 'hidden sm:table-cell' },
   { accessorKey: 'quantity', header: t('assets.table.quantity') },
   { accessorKey: 'currentPrice', header: t('assets.table.price'), class: 'hidden md:table-cell' },
   { accessorKey: 'displayValue', header: t('assets.table.value') },
