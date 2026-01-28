@@ -6,6 +6,8 @@ export const useAssets = () => {
   const rawHoldings = useState<any[]>('raw_holdings', () => [])
   const currentPrices = useState<Record<string, AssetInfo>>('currentPrices', () => ({}))
   const transactions = useState<Transaction[]>('transactions', () => [])
+  const isLoading = useState<boolean>('assets_loading', () => false)
+  const isPriceLoading = useState<boolean>('prices_loading', () => false)
   
   // 当前显示的币种
   const displayCurrency = useState<string>('display_currency', () => 'USD')
@@ -17,12 +19,17 @@ export const useAssets = () => {
 
   // 从后端加载聚合后的资产
   const refreshHoldings = async () => {
-    const data = await $fetch<any[]>('/api/assets')
-    rawHoldings.value = data
-    await Promise.all([
-      refreshPrices(),
-      refreshRates()
-    ])
+    isLoading.value = true
+    try {
+      const data = await $fetch<any[]>('/api/assets')
+      rawHoldings.value = data
+      await Promise.all([
+        refreshPrices(),
+        refreshRates()
+      ])
+    } finally {
+      isLoading.value = false
+    }
   }
 
   // 刷新所有相关的汇率
@@ -115,18 +122,23 @@ export const useAssets = () => {
     const symbols = rawHoldings.value.map(h => h.symbol)
     if (symbols.length === 0) return
 
-    for (const symbol of symbols) {
-      try {
-        const query: any = { symbol }
-        if (force) query.refresh = Date.now() // 增加随机参数
+    isPriceLoading.value = true
+    try {
+      for (const symbol of symbols) {
+        try {
+          const query: any = { symbol }
+          if (force) query.refresh = Date.now() // 增加随机参数
 
-        const data = await $fetch<AssetInfo>('/api/stock', { query })
-        if (data) {
-          currentPrices.value[symbol] = data
+          const data = await $fetch<AssetInfo>('/api/stock', { query })
+          if (data) {
+            currentPrices.value[symbol] = data
+          }
+        } catch (e) {
+          console.error(`Failed to fetch price for ${symbol}`, e)
         }
-      } catch (e) {
-        console.error(`Failed to fetch price for ${symbol}`, e)
       }
+    } finally {
+      isPriceLoading.value = false
     }
   }
 
@@ -181,6 +193,8 @@ export const useAssets = () => {
     holdings,
     transactions,
     displayCurrency,
+    isLoading,
+    isPriceLoading,
     addTransaction,
     refreshHoldings,
     refreshPrices,

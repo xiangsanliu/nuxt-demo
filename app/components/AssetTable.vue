@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { holdings, refreshPrices, displayCurrency } = useAssets()
+const { holdings, refreshPrices, displayCurrency, isPriceLoading } = useAssets()
 const { t } = useI18n()
 
 const columns = [
@@ -24,7 +24,15 @@ onMounted(() => {
   <div class="space-y-4 pt-4 sm:pt-0">
     <div class="flex justify-between items-center px-4 sm:px-0">
       <h3 class="text-lg font-bold">{{ t('assets.table.name') }} ({{ displayCurrency }})</h3>
-      <UButton icon="i-heroicons-arrow-path" color="neutral" variant="ghost" @click="refreshPrices(true)"> {{ t('assets.refresh') }} </UButton>
+      <UButton 
+        icon="i-heroicons-arrow-path" 
+        color="neutral" 
+        variant="ghost" 
+        :loading="isPriceLoading"
+        @click="refreshPrices(true)"
+      > 
+        {{ t('assets.refresh') }} 
+      </UButton>
     </div>
 
     <UTable :data="holdings" :columns="columns">

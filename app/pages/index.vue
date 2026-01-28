@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { holdings, refreshRates, refreshHoldings, displayCurrency, rates } = useAssets()
+const { holdings, refreshRates, refreshHoldings, displayCurrency, rates, isLoading } = useAssets()
 const { t } = useI18n()
 
 useHead({
@@ -62,7 +62,11 @@ const totalProfitPercent = computed(() => {
     </div>
 
     <UCard :ui="{ body: 'p-0 sm:p-6' }">
-      <div class="overflow-x-auto">
+      <div v-if="isLoading && holdings.length === 0" class="flex flex-col items-center justify-center py-20 gap-4">
+        <UIcon name="i-lucide-loader-2" class="text-4xl animate-spin text-primary" />
+        <span class="text-sm text-gray-500 animate-pulse font-medium">正在获取最新资产数据...</span>
+      </div>
+      <div v-else class="overflow-x-auto">
         <AssetTable />
       </div>
     </UCard>
