@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { locale, t } = useI18n()
+const { locale, setLocale, t } = useI18n()
 
 useHead({
   title: t('settings.title')
@@ -65,7 +65,12 @@ const onSubmit = async () => {
       <template #header>
         <h3 class="font-bold">{{ t('settings.language') }}</h3>
       </template>
-      <USelect v-model="locale" :items="languages" block />
+      <USelect 
+        :model-value="locale" 
+        @update:model-value="(val) => setLocale(val as any)" 
+        :items="languages" 
+        block 
+      />
     </UCard>
 
     <UCard>

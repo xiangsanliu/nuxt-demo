@@ -16,6 +16,9 @@ export default {
         "totalProfit": "Total Profit",
         "refresh": "Refresh Price",
         "add": "New Transaction",
+        "usd": "USD",
+        "hkd": "HKD",
+        "cny": "CNY",
         "table": {
           "name": "Asset",
           "symbol": "Symbol",
@@ -79,6 +82,9 @@ export default {
         "totalProfit": "总盈亏",
         "refresh": "刷新价格",
         "add": "新增操作",
+        "usd": "美元",
+        "hkd": "港币",
+        "cny": "人民币",
         "table": {
           "name": "资产名称",
           "symbol": "代码",
@@ -142,6 +148,9 @@ export default {
         "totalProfit": "總盈虧",
         "refresh": "刷新價格",
         "add": "新增操作",
+        "usd": "美元",
+        "hkd": "港幣",
+        "cny": "人民幣",
         "table": {
           "name": "資產名稱",
           "symbol": "代碼",

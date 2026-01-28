@@ -9,9 +9,9 @@ useHead({
 const isModalOpen = ref(false)
 
 const currencyOptions = [
-  { label: 'USD (美元)', value: 'USD' },
-  { label: 'HKD (港币)', value: 'HKD' },
-  { label: 'CNY (人民币)', value: 'CNY' }
+  { label: t('assets.usd'), value: 'USD' },
+  { label: t('assets.hkd'), value: 'HKD' },
+  { label: t('assets.cny'), value: 'CNY' }
 ]
 
 onMounted(() => {

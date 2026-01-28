@@ -1,6 +1,11 @@
 <script setup lang="ts">
 const { fetchUser } = useAuth()
-const email = ref('')
+const { t } = useI18n()
+
+useHead({
+  title: t('auth.register')
+})
+
 const password = ref('')
 const loading = ref(false)
 const error = ref('')
@@ -35,30 +40,30 @@ async function onSubmit() {
         <h1 class="text-4xl font-black bg-gradient-to-br from-primary-500 to-blue-600 bg-clip-text text-transparent italic mb-2">
           ANTIGRAVITY
         </h1>
-        <p class="text-gray-500 dark:text-gray-400 text-sm">创建您的账户，开启智能资产管理</p>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">{{ t('auth.start') }}</p>
       </div>
 
       <UCard :ui="{ body: 'p-6 md:p-8', rounded: 'rounded-2xl' }">
         <form @submit.prevent="onSubmit" class="space-y-5">
-          <UFormField label="邮箱地址">
+          <UFormField :label="t('auth.email')">
             <UInput v-model="email" type="email" placeholder="name@example.com" class="w-full" size="lg" />
           </UFormField>
           
-          <UFormField label="设置密码">
-            <UInput v-model="password" type="password" placeholder="建议至少 6 位字符" class="w-full" size="lg" />
+          <UFormField :label="t('auth.password')">
+            <UInput v-model="password" type="password" class="w-full" size="lg" />
           </UFormField>
           
           <p v-if="error" class="text-red-500 text-xs bg-red-50 dark:bg-red-900/20 p-2 rounded">{{ error }}</p>
           
           <UButton type="submit" :loading="loading" block size="lg" class="font-bold">
-            注 册
+            {{ t('auth.register') }}
           </UButton>
         </form>
         
         <template #footer>
           <div class="text-center text-sm text-gray-500">
-            已有账号？
-            <NuxtLink to="/login" class="text-primary font-semibold hover:underline">返回登录</NuxtLink>
+            {{ t('auth.hasAccount') }}
+            <NuxtLink to="/login" class="text-primary font-semibold hover:underline">{{ t('auth.login') }}</NuxtLink>
           </div>
         </template>
       </UCard>

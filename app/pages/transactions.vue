@@ -59,7 +59,7 @@ const confirmDelete = async (id: number) => {
         <h1 class="text-2xl md:text-3xl font-bold">{{ t('transactions.title') }}</h1>
         <p class="text-gray-500 mt-1 text-sm">{{ t('transactions.subtitle') }}</p>
       </div>
-      <UButton to="/" icon="i-heroicons-arrow-left" variant="ghost" size="sm">返回概览</UButton>
+
     </div>
 
     <UCard :ui="{ body: 'p-0 sm:p-6' }">

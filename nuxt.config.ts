@@ -29,11 +29,10 @@ export default defineNuxtConfig({
   }, devtools: { enabled: true },
   app: {
     head: {
-      title: '资产管理',
-      titleTemplate: '%s - 资产管理',
+      title: 'Asset Overview',
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0' },
-        { name: 'description', content: '现代化的智能资产管理系统' }
+        { name: 'description', content: 'Asset Overview' }
       ]
     }
   },
