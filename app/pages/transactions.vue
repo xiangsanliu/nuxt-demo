@@ -1,6 +1,10 @@
 <script setup lang="ts">
 const { transactions, refreshTransactions, deleteTransaction } = useAssets()
 
+useHead({
+  title: '操作记录'
+})
+
 const isEditModalOpen = ref(false)
 const selectedTransaction = ref<any>(null)
 

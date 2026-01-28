@@ -1,4 +1,7 @@
 <script setup lang="ts">
+useHead({
+  title: '账户设置'
+})
 const oldPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')

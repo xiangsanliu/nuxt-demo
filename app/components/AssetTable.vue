@@ -20,8 +20,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-4">
-    <div class="flex justify-between items-center">
+  <div class="space-y-4 pt-4 sm:pt-0">
+    <div class="flex justify-between items-center px-4 sm:px-0">
       <h3 class="text-lg font-bold">资产概览 ({{ displayCurrency }})</h3>
       <UButton icon="i-heroicons-arrow-path" color="neutral" variant="ghost" @click="refreshPrices(true)"> 刷新价格 </UButton>
     </div>

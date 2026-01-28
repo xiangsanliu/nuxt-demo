@@ -1,5 +1,10 @@
 <script setup lang="ts">
 const { holdings, refreshRates, refreshHoldings, displayCurrency, rates } = useAssets()
+
+useHead({
+  title: '资产概览'
+})
+
 const isModalOpen = ref(false)
 
 const currencyOptions = [
