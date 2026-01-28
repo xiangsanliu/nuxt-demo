@@ -2,11 +2,10 @@
 const { holdings, refreshPrices, displayCurrency } = useAssets()
 
 const columns = [
-  { accessorKey: 'name', header: '名称' },
-  { accessorKey: 'symbol', header: '代码' },
-  { accessorKey: 'quantity', header: '持有数量' },
-  { accessorKey: 'averageCost', header: '平均成本' },
-  { accessorKey: 'currentPrice', header: '当前价格' },
+  { accessorKey: 'name', header: '资产名称' },
+  { accessorKey: 'symbol', header: '代码', class: 'hidden sm:table-cell' },
+  { accessorKey: 'quantity', header: '数量' },
+  { accessorKey: 'currentPrice', header: '现价', class: 'hidden md:table-cell' },
   { accessorKey: 'displayValue', header: '市值' },
   { accessorKey: 'displayProfit', header: '盈亏' }
 ]
