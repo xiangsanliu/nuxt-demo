@@ -21,7 +21,10 @@ export const useAssets = () => {
   const refreshHoldings = async () => {
     isLoading.value = true
     try {
-      const data = await $fetch<any[]>('/api/assets')
+      // 显式添加 credentials: 'include' 确保 Safari 发送 Cookie
+      const data = await $fetch<any[]>('/api/assets', {
+        credentials: 'include'
+      })
       rawHoldings.value = data
       await Promise.all([
         refreshPrices(),
