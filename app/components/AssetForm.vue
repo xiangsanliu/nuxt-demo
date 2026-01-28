@@ -7,6 +7,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['success'])
 const { addTransaction, updateTransaction } = useAssets()
+const { t } = useI18n()
 
 const form = reactive({
   symbol: props.transaction?.symbol || '',
@@ -20,9 +21,9 @@ const form = reactive({
 const loading = ref(false)
 
 const types = [
-  { label: '登记资产', value: 'register' },
-  { label: '买入', value: 'buy' },
-  { label: '卖出', value: 'sell' }
+  { label: t('transactions.types.register'), value: 'register' },
+  { label: t('transactions.types.buy'), value: 'buy' },
+  { label: t('transactions.types.sell'), value: 'sell' }
 ]
 
 const currencies = ['USD', 'HKD', 'CNY']

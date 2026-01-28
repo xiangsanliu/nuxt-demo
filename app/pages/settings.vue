@@ -1,21 +1,30 @@
 <script setup lang="ts">
+const { locale, t } = useI18n()
+
 useHead({
-  title: '账户设置'
+  title: t('settings.title')
 })
+
 const oldPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
 const loading = ref(false)
 const toast = useToast()
 
+const languages = [
+  { label: '简体中文', value: 'zh-CN' },
+  { label: '繁體中文', value: 'zh-TW' },
+  { label: 'English', value: 'en' }
+]
+
 const onSubmit = async () => {
   if (newPassword.value !== confirmPassword.value) {
-    toast.add({ title: '两次输入的密码不一致', color: 'error' })
+    toast.add({ title: t('settings.mismatch'), color: 'error' })
     return
   }
 
   if (newPassword.value.length < 6) {
-    toast.add({ title: '新密码长度至少为 6 位', color: 'error' })
+    toast.add({ title: t('settings.tooShort'), color: 'error' })
     return
   }
 
@@ -28,15 +37,15 @@ const onSubmit = async () => {
         newPassword: newPassword.value
       }
     })
-    toast.add({ title: '密码修改成功', color: 'success' })
+    toast.add({ title: t('settings.success'), color: 'success' })
     // 清空表单
     oldPassword.value = ''
     newPassword.value = ''
     confirmPassword.value = ''
   } catch (err: any) {
     toast.add({ 
-      title: '修改失败', 
-      description: err.data?.statusMessage || '请检查旧密码是否正确', 
+      title: t('settings.submit'), 
+      description: err.data?.statusMessage || 'Error', 
       color: 'error' 
     })
   } finally {
@@ -48,27 +57,37 @@ const onSubmit = async () => {
 <template>
   <UContainer class="py-10 max-w-md">
     <div class="mb-8">
-      <h1 class="text-3xl font-bold">账号设置</h1>
-      <p class="text-gray-500 mt-2">修改您的登录密码</p>
+      <h1 class="text-3xl font-bold">{{ t('settings.title') }}</h1>
+      <p class="text-gray-500 mt-2">{{ t('settings.subtitle') }}</p>
     </div>
 
+    <UCard class="mb-6">
+      <template #header>
+        <h3 class="font-bold">{{ t('settings.language') }}</h3>
+      </template>
+      <USelect v-model="locale" :items="languages" block />
+    </UCard>
+
     <UCard>
+      <template #header>
+        <h3 class="font-bold">{{ t('settings.submit') }}</h3>
+      </template>
       <UForm :state="{}" @submit="onSubmit" class="space-y-4">
-        <UFormField label="当前密码" name="oldPassword">
-          <UInput v-model="oldPassword" type="password" placeholder="请输入当前密码" block />
+        <UFormField :label="t('settings.oldPassword')" name="oldPassword">
+          <UInput v-model="oldPassword" type="password" block />
         </UFormField>
 
-        <UFormField label="新密码" name="newPassword">
-          <UInput v-model="newPassword" type="password" placeholder="至少 6 位字符" block />
+        <UFormField :label="t('settings.newPassword')" name="newPassword">
+          <UInput v-model="newPassword" type="password" block />
         </UFormField>
 
-        <UFormField label="确认新密码" name="confirmPassword">
-          <UInput v-model="confirmPassword" type="password" placeholder="请再次输入新密码" block />
+        <UFormField :label="t('settings.confirmPassword')" name="confirmPassword">
+          <UInput v-model="confirmPassword" type="password" block />
         </UFormField>
 
         <div class="pt-4">
           <UButton type="submit" block color="primary" :loading="loading">
-            修改密码
+            {{ t('settings.submit') }}
           </UButton>
         </div>
       </UForm>

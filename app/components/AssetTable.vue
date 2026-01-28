@@ -1,13 +1,14 @@
 <script setup lang="ts">
 const { holdings, refreshPrices, displayCurrency } = useAssets()
+const { t } = useI18n()
 
 const columns = [
-  { accessorKey: 'name', header: '资产名称' },
-  { accessorKey: 'symbol', header: '代码', class: 'hidden sm:table-cell' },
-  { accessorKey: 'quantity', header: '数量' },
-  { accessorKey: 'currentPrice', header: '现价', class: 'hidden md:table-cell' },
-  { accessorKey: 'displayValue', header: '市值' },
-  { accessorKey: 'displayProfit', header: '盈亏' }
+  { accessorKey: 'name', header: t('assets.table.name') },
+  { accessorKey: 'symbol', header: t('assets.table.symbol'), class: 'hidden sm:table-cell' },
+  { accessorKey: 'quantity', header: t('assets.table.quantity') },
+  { accessorKey: 'currentPrice', header: t('assets.table.price'), class: 'hidden md:table-cell' },
+  { accessorKey: 'displayValue', header: t('assets.table.value') },
+  { accessorKey: 'displayProfit', header: t('assets.table.profit') }
 ]
 
 const formatNumber = (num: number, decimals = 2) => {
@@ -22,8 +23,8 @@ onMounted(() => {
 <template>
   <div class="space-y-4 pt-4 sm:pt-0">
     <div class="flex justify-between items-center px-4 sm:px-0">
-      <h3 class="text-lg font-bold">资产概览 ({{ displayCurrency }})</h3>
-      <UButton icon="i-heroicons-arrow-path" color="neutral" variant="ghost" @click="refreshPrices(true)"> 刷新价格 </UButton>
+      <h3 class="text-lg font-bold">{{ t('assets.table.name') }} ({{ displayCurrency }})</h3>
+      <UButton icon="i-heroicons-arrow-path" color="neutral" variant="ghost" @click="refreshPrices(true)"> {{ t('assets.refresh') }} </UButton>
     </div>
 
     <UTable :data="holdings" :columns="columns">
@@ -61,7 +62,7 @@ onMounted(() => {
     </UTable>
 
     <div v-if="holdings.length === 0" class="text-center py-10 text-gray-500">
-      暂无资产，请点击“新增操作”添加。
+      {{ t('assets.table.empty') }}
     </div>
   </div>
 </template>

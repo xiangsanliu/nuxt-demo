@@ -1,8 +1,19 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: [
-    '@nuxt/ui'
+    '@nuxt/ui',
+    '@nuxtjs/i18n'
   ],
+  i18n: {
+    locales: [
+      { code: 'en', label: 'English' },
+      { code: 'zh-CN', label: '简体中文' },
+      { code: 'zh-TW', label: '繁體中文' }
+    ],
+    defaultLocale: 'zh-CN',
+    strategy: 'no_prefix',
+    vueI18n: 'i18n.config.ts'
+  },
   css: ['~/assets/css/main.css'],
   // 强制开启未来功能（可选，Nuxt 4 推荐）
   future: {

@@ -1,6 +1,7 @@
 import type { AssetInfo, Transaction } from '~/types/asset-info'
 
 export const useAssets = () => {
+  const { locale } = useI18n()
   // 数据库计算好的原始持仓数据
   const rawHoldings = useState<any[]>('raw_holdings', () => [])
   const currentPrices = useState<Record<string, AssetInfo>>('currentPrices', () => ({}))
@@ -59,6 +60,13 @@ export const useAssets = () => {
   watch(displayCurrency, () => {
     refreshRates()
   })
+
+  // 监听语言变化，自动设置默认币种
+  watch(locale, (newLocale) => {
+    if (newLocale === 'zh-CN') displayCurrency.value = 'CNY'
+    else if (newLocale === 'zh-TW') displayCurrency.value = 'HKD'
+    else if (newLocale === 'en') displayCurrency.value = 'USD'
+  }, { immediate: true })
 
   // 获取特定币种对 USD 的汇率 (1 XXX = ? USD)
   const getRateToUSD = (currency: string) => {

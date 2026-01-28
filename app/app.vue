@@ -1,9 +1,6 @@
 <script setup lang="ts">
 const { user, logout } = useAuth()
-
-useHead({
-  title: '智能资产管理'
-})
+const { t } = useI18n()
 </script>
 
 <template>
@@ -11,20 +8,20 @@ useHead({
     <!-- 顶部导航 -->
     <nav v-if="user" class="sticky top-0 z-50 border-b border-gray-100 dark:border-gray-800 bg-white/70 dark:bg-black/70 backdrop-blur-xl">
       <UContainer class="flex justify-between items-center h-16 md:h-20">
-        <NuxtLink to="/" class="text-2xl font-black tracking-tighter bg-gradient-to-br from-primary-500 to-blue-600 bg-clip-text text-transparent">
-          资产管理
+        <NuxtLink to="/" class="text-2xl font-black tracking-tighter bg-gradient-to-br from-primary-500 to-blue-600 bg-clip-text text-transparent italic">
+          ANTIGRAVITY
         </NuxtLink>
         
         <!-- 桌面端菜单 -->
         <div class="hidden md:flex items-center gap-10">
           <NuxtLink to="/" class="flex items-center gap-2 text-[13px] uppercase tracking-widest transition-opacity hover:opacity-70" active-class="text-primary font-bold">
-            资产
+            {{ t('nav.assets') }}
           </NuxtLink>
           <NuxtLink to="/transactions" class="flex items-center gap-2 text-[13px] uppercase tracking-widest transition-opacity hover:opacity-70" active-class="text-primary font-bold">
-            记录
+            {{ t('nav.records') }}
           </NuxtLink>
           <NuxtLink to="/settings" class="flex items-center gap-2 text-[13px] uppercase tracking-widest transition-opacity hover:opacity-70" active-class="text-primary font-bold">
-            设置
+            {{ t('nav.settings') }}
           </NuxtLink>
         </div>
 
@@ -45,15 +42,15 @@ useHead({
       <div class="flex justify-around items-center p-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl">
         <NuxtLink to="/" class="flex flex-col items-center gap-1 px-4 py-1" active-class="text-primary">
           <UIcon name="i-lucide-layout-dashboard" class="text-xl" />
-          <span class="text-[10px] font-medium">资产</span>
+          <span class="text-[10px] font-medium">{{ t('nav.assets') }}</span>
         </NuxtLink>
         <NuxtLink to="/transactions" class="flex flex-col items-center gap-1 px-4 py-1" active-class="text-primary">
           <UIcon name="i-lucide-history" class="text-xl" />
-          <span class="text-[10px] font-medium">记录</span>
+          <span class="text-[10px] font-medium">{{ t('nav.records') }}</span>
         </NuxtLink>
         <NuxtLink to="/settings" class="flex flex-col items-center gap-1 px-4 py-1" active-class="text-primary">
           <UIcon name="i-lucide-settings" class="text-xl" />
-          <span class="text-[10px] font-medium">设置</span>
+          <span class="text-[10px] font-medium">{{ t('nav.settings') }}</span>
         </NuxtLink>
       </div>
     </div>

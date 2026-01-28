@@ -1,21 +1,22 @@
 <script setup lang="ts">
 const { transactions, refreshTransactions, deleteTransaction } = useAssets()
+const { t } = useI18n()
 
 useHead({
-  title: '操作记录'
+  title: t('transactions.title')
 })
 
 const isEditModalOpen = ref(false)
 const selectedTransaction = ref<any>(null)
 
 const columns = [
-  { accessorKey: 'date', header: '日期' },
-  { accessorKey: 'symbol', header: '代码' },
-  { accessorKey: 'type', header: '类型' },
-  { accessorKey: 'amount', header: '数量' },
-  { accessorKey: 'price', header: '价格' },
-  { accessorKey: 'currency', header: '货币' },
-  { accessorKey: 'actions', header: '操作' }
+  { accessorKey: 'date', header: t('transactions.date') },
+  { accessorKey: 'symbol', header: t('transactions.symbol') },
+  { accessorKey: 'type', header: t('transactions.type') },
+  { accessorKey: 'amount', header: t('transactions.amount') },
+  { accessorKey: 'price', header: t('transactions.price') },
+  { accessorKey: 'currency', header: t('transactions.currency') },
+  { accessorKey: 'actions', header: t('assets.table.actions') }
 ]
 
 onMounted(() => {
@@ -32,10 +33,11 @@ const formatNumber = (num: number, decimals = 2) => {
 }
 
 const getTypeLabel = (type: string) => {
-  const t = type.toUpperCase()
-  if (t === 'BUY') return { label: '买入', color: 'primary' }
-  if (t === 'SELL') return { label: '卖出', color: 'error' }
-  return { label: t, color: 'neutral' }
+  const tStr = type.toUpperCase()
+  if (tStr === 'BUY') return { label: t('transactions.types.buy'), color: 'primary' }
+  if (tStr === 'SELL') return { label: t('transactions.types.sell'), color: 'error' }
+  if (tStr === 'REGISTER') return { label: t('transactions.types.register'), color: 'neutral' }
+  return { label: tStr, color: 'neutral' }
 }
 
 const editTransaction = (tr: any) => {
@@ -44,7 +46,7 @@ const editTransaction = (tr: any) => {
 }
 
 const confirmDelete = async (id: number) => {
-  if (confirm('确定要删除这条记录吗？')) {
+  if (confirm(t('transactions.confirmDelete'))) {
     await deleteTransaction(id)
   }
 }
@@ -54,8 +56,8 @@ const confirmDelete = async (id: number) => {
   <UContainer class="py-10">
     <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
-        <h1 class="text-2xl md:text-3xl font-bold">操作记录</h1>
-        <p class="text-gray-500 mt-1 text-sm">管理您的所有买入和卖出记录</p>
+        <h1 class="text-2xl md:text-3xl font-bold">{{ t('transactions.title') }}</h1>
+        <p class="text-gray-500 mt-1 text-sm">{{ t('transactions.subtitle') }}</p>
       </div>
       <UButton to="/" icon="i-heroicons-arrow-left" variant="ghost" size="sm">返回概览</UButton>
     </div>
